@@ -108,11 +108,11 @@ class Predictor(BasePredictor):
         from bark import text_to_semantic
 
         history_prompt = None
-        text_prompt = "So, you've heard about neural vocoding? [laughs] We've been messing around with this new model called Vocos."
+        text_prompt = prompt
         semantic_tokens = text_to_semantic(
-            text_prompt, history_prompt=history_prompt, temp=0.7, silent=False,)
+            text_prompt, history_prompt=history_prompt, temp=text_temp, silent=False,)
         audio_tokens = semantic_to_audio_tokens(
-            semantic_tokens, history_prompt=history_prompt, temp=0.7, silent=False, output_full=False,
+            semantic_tokens, history_prompt=history_prompt, temp=text_temp, silent=False, output_full=False,
         )
 
         from bark.generation import codec_decode
