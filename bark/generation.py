@@ -370,7 +370,7 @@ def generate_text_semantic(
     silent=False,
     min_eos_p=0.2,
     max_gen_duration_s=None,
-    allow_early_stop=True,
+    allow_early_stop=False,
     model=None,
     use_kv_caching=False
 ):
