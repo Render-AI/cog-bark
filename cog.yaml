@@ -12,6 +12,7 @@ build:
     - "torchaudio==2.0.0"
     - "tqdm==4.65.0"
     - "transformers==4.28.1"
+    - "vocos"
   run:
     - mkdir -p /root/.cache/torch/hub/checkpoints/ && wget --output-document "/root/.cache/torch/hub/checkpoints/encodec_24khz-d7cc33bc.th" "https://dl.fbaipublicfiles.com/encodec/v0/encodec_24khz-d7cc33bc.th"
 
