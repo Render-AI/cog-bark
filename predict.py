@@ -11,6 +11,7 @@ class ModelOutput(BaseModel):
 
 
 class Predictor(BasePredictor):
+
     def setup(self):
         """Load the model into memory to make running multiple predictions efficient"""
         # for the pushed version on Replicate, the CACHE_DIR from bark/generation.py is changed to a local folder to
@@ -51,6 +52,8 @@ class Predictor(BasePredictor):
         if custom_history_prompt is not None:
             history_prompt = str(custom_history_prompt)
 
+        '''
+        # begin original output function
         audio_array = generate_audio(
             prompt,
             history_prompt=history_prompt,
@@ -65,4 +68,72 @@ class Predictor(BasePredictor):
         out_npz = "/tmp/prompt.npz"
         save_as_prompt(out_npz, audio_array[0])
         write_wav(output, SAMPLE_RATE, audio_array[-1])
-        return ModelOutput(prompt_npz=Path(out_npz), audio_out=Path(output))
+        # end of original output function
+        '''
+
+        # Imports adapted from https://github.com/gemelo-ai/vocos/blob/main/notebooks%2FBark%2BVocos.ipynb
+        import torch
+        from vocos import Vocos
+        from typing import Optional, Union, Dict
+        import numpy as np
+        from bark.generation import generate_coarse, generate_fine
+
+        # Source: https://github.com/gemelo-ai/vocos/blob/main/notebooks%2FBark%2BVocos.ipynb
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        vocos = Vocos.from_pretrained(
+            "charactr/vocos-encodec-24khz").to(device)
+
+        def semantic_to_audio_tokens(
+            semantic_tokens: np.ndarray,
+            history_prompt: Optional[Union[Dict, str]] = None,
+            temp: float = 0.7,
+            silent: bool = False,
+            output_full: bool = False,
+        ):
+            coarse_tokens = generate_coarse(
+                semantic_tokens, history_prompt=history_prompt, temp=temp, silent=silent, use_kv_caching=True
+            )
+            fine_tokens = generate_fine(
+                coarse_tokens, history_prompt=history_prompt, temp=0.5)
+
+            if output_full:
+                full_generation = {
+                    "semantic_prompt": semantic_tokens,
+                    "coarse_prompt": coarse_tokens,
+                    "fine_prompt": fine_tokens,
+                }
+                return full_generation
+            return fine_tokens
+
+        from bark import text_to_semantic
+
+        history_prompt = None
+        text_prompt = "So, you've heard about neural vocoding? [laughs] We've been messing around with this new model called Vocos."
+        semantic_tokens = text_to_semantic(
+            text_prompt, history_prompt=history_prompt, temp=0.7, silent=False,)
+        audio_tokens = semantic_to_audio_tokens(
+            semantic_tokens, history_prompt=history_prompt, temp=0.7, silent=False, output_full=False,
+        )
+
+        from bark.generation import codec_decode
+
+        from IPython.display import Audio
+
+        encodec_output = codec_decode(audio_tokens)
+
+        import torchaudio
+        # Upsample to 44100 Hz for better reproduction on audio hardware
+        encodec_output = torchaudio.functional.resample(
+            torch.from_numpy(encodec_output), orig_freq=24000, new_freq=44100)
+        Audio(encodec_output, rate=44100)
+
+        audio_tokens_torch = torch.from_numpy(audio_tokens).to(device)
+        features = vocos.codes_to_features(audio_tokens_torch)
+        vocos_output = vocos.decode(features, bandwidth_id=torch.tensor([2], device=device))  # 6 kbps
+        # Upsample to 44100 Hz for better reproduction on audio hardware
+        vocos_output = torchaudio.functional.resample(vocos_output, orig_freq=24000, new_freq=44100).cpu()
+        Audio(vocos_output.numpy(), rate=44100)
+
+        torchaudio.save("encodec.mp3", encodec_output[None, :], 44100, compression=128)
+
+        return ModelOutput(audio_out=Path('encodec.mp3'))
