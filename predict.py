@@ -106,8 +106,7 @@ class Predictor(BasePredictor):
             return fine_tokens
 
         from bark import text_to_semantic
-
-        history_prompt = None
+        
         text_prompt = prompt
         semantic_tokens = text_to_semantic(
             text_prompt, history_prompt=history_prompt, temp=text_temp, silent=False,)
