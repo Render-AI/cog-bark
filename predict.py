@@ -85,7 +85,7 @@ class Predictor(BasePredictor):
 
         def semantic_to_audio_tokens(
             semantic_tokens: np.ndarray,
-            history_prompt: Optional[Union[Dict, str]] = None,
+            history_prompt: history_prompt,
             temp: float = 0.7,
             silent: bool = False,
             output_full: bool = False,
