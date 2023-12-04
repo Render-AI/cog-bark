@@ -128,8 +128,11 @@ class Predictor(BasePredictor):
         
         # play audio locally
         # Audio(np.concatenate(pieces), rate=SAMPLE_RATE)
+        import soundfile as sf
 
-        torchaudio.save("output.mp3", np.concatenate(pieces), 44100, compression=128)
+        # torchaudio.save("output.mp3", np.concatenate(pieces), 44100, compression=128)
+        sf.write('output.mp3', pieces, samplerate=SAMPLE_RATE, format="mp3")
+
 
         return ModelOutput(audio_out=Path('output.mp3'))
 
