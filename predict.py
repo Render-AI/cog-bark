@@ -16,7 +16,7 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         # for the pushed version on Replicate, the CACHE_DIR from bark/generation.py is changed to a local folder to
         # include the weights file in the image for faster inference
-        nltk.download('punkt');
+        nltk.download('punkt')
         preload_models()
 
     def predict(
@@ -120,30 +120,20 @@ class Predictor(BasePredictor):
 
         sentences = nltk.sent_tokenize(prompt)
         SPEAKER = history_prompt
-        silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
-        pieces = []
-        for sentence in sentences:
-            audio_array = generate_audio(sentence, history_prompt=SPEAKER)
-            pieces += [audio_array, silence.copy()]
-        
-        # play audio locally
-        # Audio(np.concatenate(pieces), rate=SAMPLE_RATE)
-        import soundfile as sf
+        # silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
+        semanticPieces = []
+        audioPieces = []
+        for sentence in sentences:                        
+             # generate with Vocos
+            text_prompt = sentence + " "
+            semantic_tokens = text_to_semantic(
+                text_prompt, history_prompt=history_prompt, temp=text_temp, silent=False,)
+            audio_tokens = semantic_to_audio_tokens(
+                semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, silent=False, output_full=False,
+            )
 
-        # torchaudio.save("output.mp3", np.concatenate(pieces), 44100, compression=128)
-        sf.write('output.mp3', pieces, samplerate=SAMPLE_RATE, format="mp3")
-
-
-        return ModelOutput(audio_out=Path('output.mp3'))
-
-        '''
-        # code for shortform (15sec) generation with Vocos
-        text_prompt = prompt
-        semantic_tokens = text_to_semantic(
-            text_prompt, history_prompt=history_prompt, temp=text_temp, silent=False,)
-        audio_tokens = semantic_to_audio_tokens(
-            semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, silent=False, output_full=False,
-        )
+            semanticPieces += [semantic_tokens]
+            audioPieces += [audio_tokens]     
 
         from bark.generation import codec_decode
 
@@ -164,8 +154,7 @@ class Predictor(BasePredictor):
         vocos_output = torchaudio.functional.resample(vocos_output, orig_freq=24000, new_freq=44100).cpu()
         Audio(vocos_output.numpy(), rate=44100)
 
-        torchaudio.save("encodec.mp3", encodec_output[None, :], 44100, compression=128)
+        torchaudio.save("encodec.mp3", encodec_output[None, :], 44100, compression=128)        
+        # end code for generation with Vocos                                
 
-        return ModelOutput(audio_out=Path('encodec.mp3'))
-        '''
-                
+        return ModelOutput(audio_out=Path('output.mp3'))                
