@@ -114,6 +114,8 @@ class Predictor(BasePredictor):
         import numpy as np      
         import torchaudio  
 
+        nltk.download('punkt');
+
         prompt = prompt.replace("\n", " ").strip()
 
         sentences = nltk.sent_tokenize(prompt)
