@@ -106,7 +106,32 @@ class Predictor(BasePredictor):
             return fine_tokens
 
         from bark import text_to_semantic
+
+
+        # Longform generation code taken from https://github.com/gitmylo/bark-data-gen/blob/main/notebooks/long_form_generation.ipynb
+        from IPython.display import Audio
+        import nltk  # we'll use this to split into sentences
+        import numpy as np      
+        import torchaudio  
+
+        prompt = prompt.replace("\n", " ").strip()
+
+        sentences = nltk.sent_tokenize(script)
+        SPEAKER = custom_history_prompt
+        silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
+        pieces = []
+        for sentence in sentences:
+            audio_array = generate_audio(sentence, history_prompt=SPEAKER)
+            pieces += [audio_array, silence.copy()]
         
+        Audio(np.concatenate(pieces), rate=SAMPLE_RATE)
+
+        torchaudio.save("output.mp3", pieces[None, :], 44100, compression=128)
+
+        return ModelOutput(audio_out=Path('output.mp3'))
+
+        '''
+        # code for shortform (15sec) generation with Vocos
         text_prompt = prompt
         semantic_tokens = text_to_semantic(
             text_prompt, history_prompt=history_prompt, temp=text_temp, silent=False,)
@@ -136,3 +161,5 @@ class Predictor(BasePredictor):
         torchaudio.save("encodec.mp3", encodec_output[None, :], 44100, compression=128)
 
         return ModelOutput(audio_out=Path('encodec.mp3'))
+        '''
+                
