@@ -124,9 +124,10 @@ class Predictor(BasePredictor):
             audio_array = generate_audio(sentence, history_prompt=SPEAKER)
             pieces += [audio_array, silence.copy()]
         
-        Audio(np.concatenate(pieces), rate=SAMPLE_RATE)
+        # play audio locally
+        # Audio(np.concatenate(pieces), rate=SAMPLE_RATE)
 
-        torchaudio.save("output.mp3", pieces[None, :], 44100, compression=128)
+        torchaudio.save("output.mp3", np.concatenate(pieces), 44100, compression=128)
 
         return ModelOutput(audio_out=Path('output.mp3'))
 
