@@ -3,7 +3,7 @@ from scipy.io.wavfile import write as write_wav
 from cog import BasePredictor, Input, Path, BaseModel
 from bark import SAMPLE_RATE, generate_audio, preload_models, save_as_prompt
 from bark.generation import ALLOWED_PROMPTS
-
+import nltk  # we'll use this to split into sentences
 
 class ModelOutput(BaseModel):
     prompt_npz: Optional[Path]
@@ -16,6 +16,7 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         # for the pushed version on Replicate, the CACHE_DIR from bark/generation.py is changed to a local folder to
         # include the weights file in the image for faster inference
+        nltk.download('punkt');
         preload_models()
 
     def predict(
@@ -109,12 +110,11 @@ class Predictor(BasePredictor):
 
 
         # Longform generation code taken from https://github.com/gitmylo/bark-data-gen/blob/main/notebooks/long_form_generation.ipynb
-        from IPython.display import Audio
-        import nltk  # we'll use this to split into sentences
+        from IPython.display import Audio        
         import numpy as np      
         import torchaudio  
 
-        nltk.download();
+        
 
         prompt = prompt.replace("\n", " ").strip()
 
