@@ -154,7 +154,7 @@ class Predictor(BasePredictor):
         vocos_output = torchaudio.functional.resample(vocos_output, orig_freq=24000, new_freq=44100).cpu()
         Audio(vocos_output.numpy(), rate=44100)
 
-        torchaudio.save("encodec.mp3", encodec_output[None, :], 44100, compression=128)        
+        torchaudio.save("output.mp3", encodec_output[None, :], 44100, compression=128)        
         # end code for generation with Vocos                                
 
         return ModelOutput(audio_out=Path('output.mp3'))                
