@@ -110,8 +110,7 @@ class Predictor(BasePredictor):
 
 
         # Longform generation code taken from https://github.com/gitmylo/bark-data-gen/blob/main/notebooks/long_form_generation.ipynb
-        from IPython.display import Audio        
-        import numpy as np      
+        from IPython.display import Audio                  
         import torchaudio  
 
         
@@ -121,8 +120,9 @@ class Predictor(BasePredictor):
         sentences = nltk.sent_tokenize(prompt)
         SPEAKER = history_prompt
         # silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
-        semanticPieces = []
-        audioPieces = []
+        semanticPieces =  np.array([])
+        audioPieces = np.array([])
+
         for sentence in sentences:                        
              # generate with Vocos
             text_prompt = sentence + " "
@@ -132,8 +132,8 @@ class Predictor(BasePredictor):
                 semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, silent=False, output_full=False,
             )
 
-            semanticPieces += [semantic_tokens]
-            audioPieces += [audio_tokens]     
+            semanticPieces = np.append(semanticPieces, semantic_tokens)
+            audioPieces = np.append(audioPieces, audio_tokens)
 
         from bark.generation import codec_decode
 
