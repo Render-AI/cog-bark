@@ -116,7 +116,7 @@ class Predictor(BasePredictor):
 
         prompt = prompt.replace("\n", " ").strip()
 
-        sentences = nltk.sent_tokenize(script)
+        sentences = nltk.sent_tokenize(prompt)
         SPEAKER = history_prompt
         silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
         pieces = []
