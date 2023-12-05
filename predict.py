@@ -4,7 +4,8 @@ from cog import BasePredictor, Input, Path, BaseModel
 from bark import SAMPLE_RATE, generate_audio, preload_models, save_as_prompt
 from bark.generation import ALLOWED_PROMPTS
 import nltk  # we'll use this to split into sentences
-
+from voicefixer import VoiceFixer
+from voicefixer import Vocoder
 
 class ModelOutput(BaseModel):
     prompt_npz: Optional[Path]
@@ -170,8 +171,7 @@ class Predictor(BasePredictor):
             Audio(vocos_output.numpy(), rate=44100)
             filename = f"temp-output-{count}.mp3"
             torchaudio.save(
-                filename, encodec_output[None, :], 44100, compression=128)
-            count = count + 1
+                filename, encodec_output[None, :], 44100, compression=128)            
             audioFiles.append(filename)
 
             print(f"Exporting {filename}...\n")
@@ -183,9 +183,16 @@ class Predictor(BasePredictor):
                 finalOutput = finalOutput.append(currentOutput, crossfade=50) 
             if(count == len(sentences)):
                 print("Exporting combined output...\n")
-                print(audioFiles) #printing the array
-        
+                print(audioFiles) #printing the array        
                 finalOutput.export("output.mp3", format="mp3")
+            count = count + 1                
             # end code for generation with Vocos
         
-        return ModelOutput(audio_out=Path('output.mp3'))
+        # voicefixer = VoiceFixer()
+        # Mode 0
+        VoiceFixer.restore(input="output.mp3", # input wav file path
+                   output="final-output.mp3", # output wav file path
+                   cuda=True, # whether to use gpu acceleration
+                   mode = 0) # You can try out mode 0, 1, 2 to find out the best result
+
+        return ModelOutput(audio_out=Path('final-output.mp3'))
