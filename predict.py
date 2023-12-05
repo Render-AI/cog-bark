@@ -128,6 +128,7 @@ class Predictor(BasePredictor):
         audioPieces = None
         count = 1
         audioFiles = []
+        finalOutput = None        
 
         for sentence in sentences:                        
              # generate with Vocos
@@ -170,7 +171,18 @@ class Predictor(BasePredictor):
             filename = "output-" + count + ".mp3" 
             torchaudio.save(filename, encodec_output[None, :], 44100, compression=128)        
             count = count + 1
-            audioFiles.append(filename)
-            # end code for generation with Vocos                                
+            audioFiles.append(filename)     
+            
+            from pydub import AudioSegment  
+            if finalOutput is None:
+                finalOutput = AudioSegment.from_mp3(filename)
+            if finalOutput is not None:
+                previousOutput = finalOutput
+                currentOutput = AudioSegment.from_mp3(filename)
+                finalOutput - previousOutput.append(currentOutput,crossfade=50)
+            # end code for generation with Vocos                                    
 
+        print("Exporting...\n")
+        print(audioFiles)
+        finalOutput.export("output",format="mp3")
         return ModelOutput(audio_out=Path('output.mp3'))                

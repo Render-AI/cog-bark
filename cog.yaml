@@ -17,6 +17,7 @@ build:
     - "nltk"
     - "numpy"
     - "soundfile"
+    - "pydub"
   run:
     - mkdir -p /root/.cache/torch/hub/checkpoints/ && wget --output-document "/root/.cache/torch/hub/checkpoints/encodec_24khz-d7cc33bc.th" "https://dl.fbaipublicfiles.com/encodec/v0/encodec_24khz-d7cc33bc.th"
 
