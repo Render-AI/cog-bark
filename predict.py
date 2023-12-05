@@ -23,8 +23,7 @@ class Predictor(BasePredictor):
         self,
         prompt: str = Input(
             description="Input prompt",
-            default="Hello, my name is Suno. And, uh — and I like pizza. [laughs] But I also have other interests "
-            "such as playing tic tac toe.",
+            default="Hello, I am, uh — how should I say this... [laughs] I am a voice clone made by an A.I.",
         ),
         history_prompt: str = Input(
             description="history choice for audio cloning, choose from the list",
