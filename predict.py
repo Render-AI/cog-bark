@@ -180,8 +180,7 @@ class Predictor(BasePredictor):
             if finalOutput is not None:
                 previousOutput = finalOutput
                 currentOutput = AudioSegment.from_mp3(filename)
-                finalOutput - \
-                    previousOutput.append(currentOutput, crossfade=50)
+                finalOutput = previousOutput.append(currentOutput, crossfade=50)
             # end code for generation with Vocos
 
         print("Exporting...\n")
