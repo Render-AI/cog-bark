@@ -6,14 +6,14 @@
   "scripts": {
     "test": "cog predict -i prompt='Hello, there. I am Suno.'",
     "predict": "cog predict",
-    "clone": "bash scripts/clone.sh",
-    "deploy": "bash scripts/deploy.sh",
-    "install-cog": "bash scripts/install-cog.sh",
-    "install-cuda": "bash scripts/install-cuda.sh",
-    "install-docker": "bash scripts/install-docker.sh",
-    "setup-docker": "bash scripts/setup-docker.sh",
-    "start-docker": "bash scripts/start-docker.sh",
-    "redeploy": "bash scripts/redeploy.sh"        
+    "clone": "cd ..; bash cog-bark/scripts/clone.sh",
+    "deploy": "cd ..; bash cog-bark/scripts/deploy.sh",
+    "install-cog": "cd ..; bash cog-bark/scripts/install-cog.sh",
+    "install-cuda": "cd ..; bash cog-bark;scripts/install-cuda.sh",
+    "install-docker": "cd ..; bash cog-bark/scripts/install-docker.sh",
+    "setup-docker": "cd ..; bash cog-bark/scripts/setup-docker.sh",
+    "start-docker": "cd ..; bash cog-bark/scripts/start-docker.sh",
+    "redeploy": "cd ..; bash cog-bark/scripts/redeploy.sh"        
   },
   "repository": {
     "type": "git",
