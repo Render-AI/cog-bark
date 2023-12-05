@@ -6,7 +6,8 @@ from bark.generation import ALLOWED_PROMPTS
 import nltk  # we'll use this to split into sentences
 from voicefixer import VoiceFixer
 from voicefixer import Vocoder
-voicefixer = VoiceFixer()
+
+# voicefixer = VoiceFixer()
 
 class ModelOutput(BaseModel):
     prompt_npz: Optional[Path]
