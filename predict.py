@@ -156,7 +156,7 @@ class Predictor(BasePredictor):
             torch.from_numpy(encodec_output), orig_freq=24000, new_freq=44100)
         Audio(encodec_output, rate=44100)
 
-        audio_tokens_torch = torch.from_numpy(audio_tokens).to(device)
+        audio_tokens_torch = torch.from_numpy(audioPieces).to(device)
         features = vocos.codes_to_features(audio_tokens_torch)
         vocos_output = vocos.decode(features, bandwidth_id=torch.tensor([2], device=device))  # 6 kbps
         # Upsample to 44100 Hz for better reproduction on audio hardware
