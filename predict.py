@@ -188,7 +188,7 @@ class Predictor(BasePredictor):
             count = count + 1                
             # end code for generation with Vocos
         
-        # voicefixer = VoiceFixer()
+        # VoiceFixer for cleaning up the output
         # Mode 0
         import os
         voicefixer = VoiceFixer()
