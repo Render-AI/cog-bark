@@ -148,7 +148,9 @@ class Predictor(BasePredictor):
             # print("Audio tokens: \n")
             # print(audio_tokens)
 
-            previousPrompt = audio_tokens
+            out_npz = "/temp-prompt.npz"
+            save_as_prompt(out_npz, audio_tokens[0])
+            previousPrompt = out_npz
 
             from bark.generation import codec_decode
 
