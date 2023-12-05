@@ -174,15 +174,18 @@ class Predictor(BasePredictor):
             count = count + 1
             audioFiles.append(filename)
 
+            print(f"Exporting {filename}...\n")
             from pydub import AudioSegment
             if finalOutput is None:
                 finalOutput = AudioSegment.from_mp3(filename)
-            if finalOutput is not None:
-                previousOutput = finalOutput
+            if finalOutput is not None:                
                 currentOutput = AudioSegment.from_mp3(filename)
-                finalOutput = previousOutput.append(currentOutput, crossfade=50)
+                finalOutput = finalOutput.append(currentOutput, crossfade=50) 
+            if(count == len(sentences)):
+                print("Exporting combined output...\n")
+                print(audioFiles) #printing the array
+        
+                finalOutput.export("output.mp3", format="mp3")
             # end code for generation with Vocos
-
-        print("Exporting...\n")        
-        finalOutput.export("output.mp3", format="mp3")
+        
         return ModelOutput(audio_out=Path('output.mp3'))
