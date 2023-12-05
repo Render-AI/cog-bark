@@ -143,7 +143,7 @@ class Predictor(BasePredictor):
             )
 
             print("Audio tokens: \n")
-            print(audio_tokens);
+            print(audio_tokens)
 
             previousPrompt = audio_tokens
 
@@ -151,7 +151,7 @@ class Predictor(BasePredictor):
 
             from IPython.display import Audio
 
-            encodec_output = codec_decode(audio_tokens.fine_prompt)
+            encodec_output = codec_decode(audio_tokens['fine_prompt'])
 
             import torchaudio
             # Upsample to 44100 Hz for better reproduction on audio hardware
@@ -160,7 +160,7 @@ class Predictor(BasePredictor):
             Audio(encodec_output, rate=44100)
 
             audio_tokens_torch = torch.from_numpy(
-                audio_tokens.fine_prompt).to(device)
+                audio_tokens['fine_prompt']).to(device)
             features = vocos.codes_to_features(audio_tokens_torch)
             vocos_output = vocos.decode(
                 features, bandwidth_id=torch.tensor([2], device=device))  # 6 kbps
