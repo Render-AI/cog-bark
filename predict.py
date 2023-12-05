@@ -108,8 +108,8 @@ class Predictor(BasePredictor):
                     "coarse_prompt": coarse_tokens,
                     "fine_prompt": fine_tokens,
                 }
-                print("Full generation: \n")
-                print(full_generation)
+                # print("Full generation: \n")
+                # print(full_generation)
                 return full_generation
             return fine_tokens
 
