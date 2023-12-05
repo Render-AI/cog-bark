@@ -5,6 +5,7 @@ from bark import SAMPLE_RATE, generate_audio, preload_models, save_as_prompt
 from bark.generation import ALLOWED_PROMPTS
 import nltk  # we'll use this to split into sentences
 
+
 class ModelOutput(BaseModel):
     prompt_npz: Optional[Path]
     audio_out: Path
@@ -107,33 +108,32 @@ class Predictor(BasePredictor):
                     "coarse_prompt": coarse_tokens,
                     "fine_prompt": fine_tokens,
                 }
+                print("Full generation: \n")
+                print(full_generation)
                 return full_generation
             return fine_tokens
 
         from bark import text_to_semantic
 
-
         # Longform generation code taken from https://github.com/gitmylo/bark-data-gen/blob/main/notebooks/long_form_generation.ipynb
-        from IPython.display import Audio                  
-        import torchaudio  
-
-        
+        from IPython.display import Audio
+        import torchaudio
 
         prompt = prompt.replace("\n", " ").strip()
 
         sentences = nltk.sent_tokenize(prompt)
         SPEAKER = history_prompt
-        # silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence                
+        # silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
         count = 1
         audioFiles = []
-        finalOutput = None        
+        finalOutput = None
         previousPrompt = None
 
-        for sentence in sentences:                        
-             # generate with Vocos
-            print("Sentence: \n" + sentence) 
-            if previousPrompt is not None: 
-                history_prompt = previousPrompt          
+        for sentence in sentences:
+            # generate with Vocos
+            print("Sentence: \n" + sentence)
+            if previousPrompt is not None:
+                history_prompt = previousPrompt
             text_prompt = " " + sentence + " "
             # TODO: feed previous sentence into text_to_semantic by generating history_prompt dynamically
             semantic_tokens = text_to_semantic(
@@ -142,7 +142,10 @@ class Predictor(BasePredictor):
                 semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, fine_temp=waveform_fine_temp, silent=False, output_full=True,
             )
 
-            previousPrompt = audio_tokens                        
+            print("Audio tokens: \n")
+            print(audio_tokens);
+
+            previousPrompt = audio_tokens
 
             from bark.generation import codec_decode
 
@@ -156,27 +159,32 @@ class Predictor(BasePredictor):
                 torch.from_numpy(encodec_output), orig_freq=24000, new_freq=44100)
             Audio(encodec_output, rate=44100)
 
-            audio_tokens_torch = torch.from_numpy(audio_tokens.fine_prompt).to(device)
+            audio_tokens_torch = torch.from_numpy(
+                audio_tokens.fine_prompt).to(device)
             features = vocos.codes_to_features(audio_tokens_torch)
-            vocos_output = vocos.decode(features, bandwidth_id=torch.tensor([2], device=device))  # 6 kbps
+            vocos_output = vocos.decode(
+                features, bandwidth_id=torch.tensor([2], device=device))  # 6 kbps
             # Upsample to 44100 Hz for better reproduction on audio hardware
-            vocos_output = torchaudio.functional.resample(vocos_output, orig_freq=24000, new_freq=44100).cpu()
+            vocos_output = torchaudio.functional.resample(
+                vocos_output, orig_freq=24000, new_freq=44100).cpu()
             Audio(vocos_output.numpy(), rate=44100)
-            filename = "output-" + count + ".mp3" 
-            torchaudio.save(filename, encodec_output[None, :], 44100, compression=128)        
+            filename = "output-" + count + ".mp3"
+            torchaudio.save(
+                filename, encodec_output[None, :], 44100, compression=128)
             count = count + 1
-            audioFiles.append(filename)     
-            
-            from pydub import AudioSegment  
+            audioFiles.append(filename)
+
+            from pydub import AudioSegment
             if finalOutput is None:
                 finalOutput = AudioSegment.from_mp3(filename)
             if finalOutput is not None:
                 previousOutput = finalOutput
                 currentOutput = AudioSegment.from_mp3(filename)
-                finalOutput - previousOutput.append(currentOutput,crossfade=50)
-            # end code for generation with Vocos                                    
+                finalOutput - \
+                    previousOutput.append(currentOutput, crossfade=50)
+            # end code for generation with Vocos
 
         print("Exporting...\n")
         print(audioFiles)
-        finalOutput.export("output",format="mp3")
-        return ModelOutput(audio_out=Path('output.mp3'))                
+        finalOutput.export("output", format="mp3")
+        return ModelOutput(audio_out=Path('output.mp3'))
