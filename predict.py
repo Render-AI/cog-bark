@@ -142,7 +142,7 @@ class Predictor(BasePredictor):
 
         from IPython.display import Audio
 
-        encodec_output = codec_decode(audio_tokens)
+        encodec_output = codec_decode(audioPieces)
 
         import torchaudio
         # Upsample to 44100 Hz for better reproduction on audio hardware
