@@ -126,7 +126,8 @@ class Predictor(BasePredictor):
 
         for sentence in sentences:                        
              # generate with Vocos
-            print("Sentence " + count  " of  " + len(sentences) +  ":\n " + sentence)
+            print("Sentence " + count + " of " + len(sentences))
+            count = count + 1
             text_prompt = sentence + " "
             semantic_tokens = text_to_semantic(
                 text_prompt, history_prompt=history_prompt, temp=text_temp, silent=False,)
