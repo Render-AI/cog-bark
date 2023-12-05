@@ -125,7 +125,7 @@ class Predictor(BasePredictor):
         sentences = nltk.sent_tokenize(prompt)
         SPEAKER = history_prompt
         # silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence        
-        audioPieces = np.ndarray([])
+        audioPieces = None;
         count = 1
 
         for sentence in sentences:                        
@@ -139,10 +139,11 @@ class Predictor(BasePredictor):
             audio_tokens = semantic_to_audio_tokens(
                 semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, fine_temp=waveform_fine_temp, silent=False, output_full=False,
             )
-
-            print(type(audio_tokens))
             
-            audioPieces = np.concatenate(audioPieces,  audio_tokens)
+            if audioPieces is None:
+                audioPieces = audio_tokens
+            if audioPieces is not None:
+                audioPieces = np.concatenate(audioPieces,  audio_tokens)
 
         from bark.generation import codec_decode
 
