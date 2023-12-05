@@ -146,7 +146,7 @@ class Predictor(BasePredictor):
             previousPrompt = audio_tokens
             
             if audioPieces is None:
-                audioPieces = audio_tokens
+                audioPieces = audio_tokens.fine_prompt
             if audioPieces is not None:
                 audioPieces = np.concatenate(audioPieces,  audio_tokens.fine_prompt)
 
