@@ -142,8 +142,8 @@ class Predictor(BasePredictor):
                 semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, fine_temp=waveform_fine_temp, silent=False, output_full=True,
             )
 
-            print("Audio tokens: \n")
-            print(audio_tokens)
+            # print("Audio tokens: \n")
+            # print(audio_tokens)
 
             previousPrompt = audio_tokens
 
