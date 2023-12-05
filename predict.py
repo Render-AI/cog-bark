@@ -133,7 +133,7 @@ class Predictor(BasePredictor):
         for sentence in sentences:                        
              # generate with Vocos
             print("Sentence: \n" + sentence) 
-            if(previousPrompt is not None) 
+            if previousPrompt is not None: 
                 history_prompt = previousPrompt          
             text_prompt = sentence + " "
             # TODO: feed previous sentence into text_to_semantic by generating history_prompt dynamically
