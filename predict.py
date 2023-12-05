@@ -181,14 +181,15 @@ class Predictor(BasePredictor):
                 finalOutput = AudioSegment.from_mp3(filename)
             if finalOutput is not None:                
                 currentOutput = AudioSegment.from_mp3(filename)
-                finalOutput = finalOutput.append(currentOutput, crossfade=50) 
-            if(count == len(sentences)):
-                print("Exporting combined output...\n")
-                print(audioFiles) #printing the array        
-                finalOutput.export("output.mp3", format="mp3")
+                finalOutput = finalOutput.append(currentOutput, crossfade=50)                             
             count = count + 1                
             # end code for generation with Vocos
         
+        print("Exporting combined output...\n")
+        print(audioFiles) #printing the array        
+        finalOutput.export("output.mp3", format="mp3")
+
+        '''
         # VoiceFixer for cleaning up the output
         # Mode 0
         import os        
@@ -198,3 +199,5 @@ class Predictor(BasePredictor):
                    mode = 0) # You can try out mode 0, 1, 2 to find out the best result -- 0 is the default
 
         return ModelOutput(audio_out=Path('final-output.mp3'))
+        '''
+        return ModelOutput(audio_out=Path('output.mp3'))
