@@ -190,8 +190,9 @@ class Predictor(BasePredictor):
         
         # voicefixer = VoiceFixer()
         # Mode 0
-        VoiceFixer.restore(input="./output.mp3", # input file path (wav or mp3)
-                   output="./final-output.mp3", # output file path (wav or mp3)
+        import os
+        VoiceFixer.restore(input=os.path.join(os.getcwd(),"output.mp3"), # input file path (wav or mp3)
+                   output=os.path.join(os.getcwd(),"final-output.mp3"), # output file path (wav or mp3)
                    cuda=True, # whether to use gpu acceleration
                    mode = 0) # You can try out mode 0, 1, 2 to find out the best result -- 0 is the default
 
