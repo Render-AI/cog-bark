@@ -18,7 +18,10 @@ build:
     - "numpy"
     - "soundfile"
     - "pydub"
+  system_packages:
+    - "ffmpeg"    
+    - "ffprobe"
   run:
-    - mkdir -p /root/.cache/torch/hub/checkpoints/ && wget --output-document "/root/.cache/torch/hub/checkpoints/encodec_24khz-d7cc33bc.th" "https://dl.fbaipublicfiles.com/encodec/v0/encodec_24khz-d7cc33bc.th"
+    - mkdir -p /root/.cache/torch/hub/checkpoints/ && wget --output-document "/root/.cache/torch/hub/checkpoints/encodec_24khz-d7cc33bc.th" "https://dl.fbaipublicfiles.com/encodec/v0/encodec_24khz-d7cc33bc.th"    
 
 predict: "predict.py:Predictor"
