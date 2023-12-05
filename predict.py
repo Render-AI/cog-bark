@@ -122,9 +122,11 @@ class Predictor(BasePredictor):
         # silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
         semanticPieces =  np.array([])
         audioPieces = np.array([])
+        count = 1
 
         for sentence in sentences:                        
              # generate with Vocos
+            print("Sentence " + count  " of  " + len(sentences) +  ":\n " + sentence)
             text_prompt = sentence + " "
             semantic_tokens = text_to_semantic(
                 text_prompt, history_prompt=history_prompt, temp=text_temp, silent=False,)
