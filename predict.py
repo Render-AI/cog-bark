@@ -125,7 +125,7 @@ class Predictor(BasePredictor):
         sentences = nltk.sent_tokenize(prompt)
         SPEAKER = history_prompt
         # silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence        
-        audioPieces = None;
+        audioPieces = np.ndarray([])
         count = 1
 
         for sentence in sentences:                        
