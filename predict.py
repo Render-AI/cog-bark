@@ -142,7 +142,7 @@ class Predictor(BasePredictor):
 
             print(type(audio_tokens))
             
-            audioPieces = np.np.hstack(audioPieces, audio_tokens)
+            audioPieces = np.hstack(audioPieces, audio_tokens)
 
         from bark.generation import codec_decode
 
