@@ -37,11 +37,15 @@ class Predictor(BasePredictor):
             default=None,
         ),
         text_temp: float = Input(
-            description="generation temperature (1.0 more diverse, 0.0 more conservative)",
+            description="semantic token generation temperature (1.0 more diverse, 0.0 more conservative)",
             default=0.7,
         ),
         waveform_temp: float = Input(
-            description="generation temperature (1.0 more diverse, 0.0 more conservative)",
+            description="coarse audio token generation temperature (1.0 more diverse, 0.0 more conservative)",
+            default=0.7,
+        ),
+        waveform_fine_temp: float = Input(
+            description="fine audio token generation temperature (1.0 more diverse, 0.0 more conservative)",
             default=0.7,
         ),
         output_full: bool = Input(
@@ -88,6 +92,7 @@ class Predictor(BasePredictor):
             semantic_tokens: np.ndarray,
             history_prompt: history_prompt,
             temp: float = 0.7,
+            fine_temp: float = 0.5,
             silent: bool = False,
             output_full: bool = False,
         ):
@@ -95,7 +100,7 @@ class Predictor(BasePredictor):
                 semantic_tokens, history_prompt=history_prompt, temp=temp, silent=silent, use_kv_caching=True
             )
             fine_tokens = generate_fine(
-                coarse_tokens, history_prompt=history_prompt, temp=0.5)
+                coarse_tokens, history_prompt=history_prompt, temp=fine_temp)
 
             if output_full:
                 full_generation = {
@@ -119,9 +124,8 @@ class Predictor(BasePredictor):
 
         sentences = nltk.sent_tokenize(prompt)
         SPEAKER = history_prompt
-        # silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
-        semanticPieces =  np.array([])
-        audioPieces = np.array([])
+        # silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence        
+        audioPieces = None;
         count = 1
 
         for sentence in sentences:                        
@@ -129,13 +133,16 @@ class Predictor(BasePredictor):
             print("Sentence: \n" + sentence)
             count = count + 1
             text_prompt = sentence + " "
+            # TODO: feed previous sentence into text_to_semantic by generating history_prompt dynamically
             semantic_tokens = text_to_semantic(
                 text_prompt, history_prompt=history_prompt, temp=text_temp, silent=False,)
             audio_tokens = semantic_to_audio_tokens(
-                semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, silent=False, output_full=False,
+                semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, fine_temp=waveform_fine_temp, silent=False, output_full=False,
             )
+
+            print(type(audio_tokens))
             
-            audioPieces = np.concatenate(audioPieces, audio_tokens)
+            audioPieces = np.np.hstack(audioPieces, audio_tokens)
 
         from bark.generation import codec_decode
 
