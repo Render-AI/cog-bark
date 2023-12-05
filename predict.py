@@ -178,11 +178,11 @@ class Predictor(BasePredictor):
 
             print(f"Exporting {filename}...\n")
             from pydub import AudioSegment
-            if finalOutput is None:
-                finalOutput = AudioSegment.from_mp3(filename)
             if finalOutput is not None:                
                 currentOutput = AudioSegment.from_mp3(filename)
-                finalOutput = finalOutput.append(currentOutput, crossfade=50)                             
+                finalOutput = finalOutput.append(currentOutput, crossfade=50)   
+            if finalOutput is None:
+                finalOutput = AudioSegment.from_mp3(filename)                                      
             count = count + 1                
             # end code for generation with Vocos
         
