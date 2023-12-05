@@ -129,6 +129,7 @@ class Predictor(BasePredictor):
         count = 1
         audioFiles = []
         finalOutput = None        
+        previousPrompt = None
 
         for sentence in sentences:                        
              # generate with Vocos
