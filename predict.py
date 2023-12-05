@@ -9,6 +9,7 @@ from voicefixer import Vocoder
 
 # voicefixer = VoiceFixer()
 
+
 class ModelOutput(BaseModel):
     prompt_npz: Optional[Path]
     audio_out: Path
@@ -141,15 +142,35 @@ class Predictor(BasePredictor):
             # TODO: feed previous sentence into text_to_semantic by generating history_prompt dynamically
             semantic_tokens = text_to_semantic(
                 text_prompt, history_prompt=history_prompt, temp=text_temp, silent=False,)
-            audio_tokens = semantic_to_audio_tokens(
-                semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, fine_temp=waveform_fine_temp, silent=False, output_full=True,
-            )
+            
+
+            if custom_history_prompt is None:
+                audio_tokens = semantic_to_audio_tokens(
+                    semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, fine_temp=waveform_fine_temp, silent=False, output_full=True,
+                )
+            # check to see if generated audio will stray too much from the history prompt, and, if so, re-generate    
+            if custom_history_prompt is not None:
+                acceptableVoiceDiff = False
+                while acceptableVoiceDiff is False:
+                    history_prompt_coarse = np.load(history_prompt)["coarse_prompt"]
+                    audio_tokens = semantic_to_audio_tokens(
+                        semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, fine_temp=waveform_fine_temp, silent=False, output_full=True,
+                    )
+                    new_prompt_coarse = audio_tokens[coarse_prompt]
+                    min_length = min(len(history_prompt_coarse), len(new_prompt_coarse))
+                    audio_diff = np.abs(history_prompt_coarse[:min_length] - new_prompt_coarse[:min_length])
+                    if np.max(audio_diff) > 0.1:
+                        diff_mean = np.mean(audio_diff)
+                        diff_std = np.std(audio_diff)
+                        print(f"WARNING: Abrupt change in speaker's voice detected. Mean diff = {diff_mean:.4f}, Std diff = {diff_std:.4f}")
+                    if np.max(audio_diff) <= 0.1:
+                        acceptableVoiceDiff = True
 
             # print("Audio tokens: \n")
             # print(audio_tokens)
 
             out_npz = "/temp-prompt.npz"
-            save_as_prompt(out_npz, audio_tokens)
+            save_as_prompt(out_npz, audio_tokens)            
             previousPrompt = out_npz
 
             from bark.generation import codec_decode
@@ -175,21 +196,21 @@ class Predictor(BasePredictor):
             Audio(vocos_output.numpy(), rate=44100)
             filename = f"temp-output-{count}.mp3"
             torchaudio.save(
-                filename, encodec_output[None, :], 44100, compression=128)            
+                filename, encodec_output[None, :], 44100, compression=128)
             audioFiles.append(filename)
 
             print(f"Exporting {filename}...\n")
             from pydub import AudioSegment
-            if finalOutput is not None:                
+            if finalOutput is not None:
                 currentOutput = AudioSegment.from_mp3(filename)
-                finalOutput = finalOutput.append(currentOutput, crossfade=50)   
+                finalOutput = finalOutput.append(currentOutput, crossfade=50)
             if finalOutput is None:
-                finalOutput = AudioSegment.from_mp3(filename)                                      
-            count = count + 1                
+                finalOutput = AudioSegment.from_mp3(filename)
+            count = count + 1
             # end code for generation with Vocos
-        
+
         print("Exporting combined output...\n")
-        print(audioFiles) #printing the array        
+        print(audioFiles)  # printing the array
         finalOutput.export("output.mp3", format="mp3")
 
         '''
