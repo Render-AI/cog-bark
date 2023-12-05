@@ -126,7 +126,7 @@ class Predictor(BasePredictor):
 
         for sentence in sentences:                        
              # generate with Vocos
-            print("Sentence " + count + " of " + len(sentences))
+            print("Sentence: \n" + sentence)
             count = count + 1
             text_prompt = sentence + " "
             semantic_tokens = text_to_semantic(
@@ -135,8 +135,8 @@ class Predictor(BasePredictor):
                 semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, silent=False, output_full=False,
             )
 
-            semanticPieces = np.append(semanticPieces, semantic_tokens)
-            audioPieces = np.append(audioPieces, audio_tokens)
+            semanticPieces = np.concatenate(semanticPieces, semantic_tokens)
+            audioPieces = np.concatenate(audioPieces, audio_tokens)
 
         from bark.generation import codec_decode
 
