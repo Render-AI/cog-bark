@@ -6,6 +6,7 @@ from bark.generation import ALLOWED_PROMPTS
 import nltk  # we'll use this to split into sentences
 from voicefixer import VoiceFixer
 from voicefixer import Vocoder
+voicefixer = VoiceFixer()
 
 class ModelOutput(BaseModel):
     prompt_npz: Optional[Path]
@@ -190,8 +191,7 @@ class Predictor(BasePredictor):
         
         # VoiceFixer for cleaning up the output
         # Mode 0
-        import os
-        voicefixer = VoiceFixer()
+        import os        
         voicefixer.restore(input=os.path.join(os.getcwd(),"output.mp3"), # input file path (wav or mp3)
                    output=os.path.join(os.getcwd(),"final-output.mp3"), # output file path (wav or mp3)
                    cuda=True, # whether to use gpu acceleration
