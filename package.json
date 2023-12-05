@@ -1,0 +1,31 @@
+{
+  "name": "cog-bark",
+  "version": "0.0.1",
+  "description": "Bark TTS Inference on Cog/Replicate",
+  "main": "null",
+  "scripts": {
+    "test": "cog predict -i prompt='Hello, there. I am Suno.'",
+    "predict": "cog predict",
+    "clone": "bash scripts/clone.sh",
+    "deploy": "bash scripts/deploy.sh",
+    "install-cog": "bash scripts/install-cog.sh",
+    "install-cuda": "bash scripts/install-cuda.sh",
+    "install-docker": "bash scripts/install-docker.sh",
+    "setup-docker": "bash scripts/setup-docker.sh",
+    "start-docker": "bash scripts/start-docker.sh",
+    "redeploy": "bash scripts/redeploy.sh"        
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/render-ai/cog-bark.git"
+  },
+  "keywords": [
+    "TTS"
+  ],
+  "author": "James Hunter Carter",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/render-ai/cog-bark/issues"
+  },
+  "homepage": "https://github.com/render-ai/cog-bark#readme"
+}
