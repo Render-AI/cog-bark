@@ -156,7 +156,7 @@ class Predictor(BasePredictor):
                     audio_tokens = semantic_to_audio_tokens(
                         semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, fine_temp=waveform_fine_temp, silent=False, output_full=True,
                     )
-                    new_prompt_coarse = audio_tokens[coarse_prompt]
+                    new_prompt_coarse = audio_tokens['coarse_prompt']
                     min_length = min(len(history_prompt_coarse), len(new_prompt_coarse))
                     audio_diff = np.abs(history_prompt_coarse[:min_length] - new_prompt_coarse[:min_length])
                     if np.max(audio_diff) > 0.1:
