@@ -94,7 +94,7 @@ class Predictor(BasePredictor):
             temp: float = 0.7,
             fine_temp: float = 0.5,
             silent: bool = False,
-            output_full: bool = False,
+            output_full: bool = True,
         ):
             coarse_tokens = generate_coarse(
                 semantic_tokens, history_prompt=history_prompt, temp=temp, silent=silent, use_kv_caching=True
@@ -124,8 +124,7 @@ class Predictor(BasePredictor):
 
         sentences = nltk.sent_tokenize(prompt)
         SPEAKER = history_prompt
-        # silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence        
-        audioPieces = None
+        # silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence                
         count = 1
         audioFiles = []
         finalOutput = None        
@@ -136,7 +135,7 @@ class Predictor(BasePredictor):
             print("Sentence: \n" + sentence) 
             if previousPrompt is not None: 
                 history_prompt = previousPrompt          
-            text_prompt = sentence + " "
+            text_prompt = " " + sentence + " "
             # TODO: feed previous sentence into text_to_semantic by generating history_prompt dynamically
             semantic_tokens = text_to_semantic(
                 text_prompt, history_prompt=history_prompt, temp=text_temp, silent=False,)
@@ -144,18 +143,13 @@ class Predictor(BasePredictor):
                 semantic_tokens, history_prompt=history_prompt, temp=waveform_temp, fine_temp=waveform_fine_temp, silent=False, output_full=True,
             )
 
-            previousPrompt = audio_tokens
-            
-            if audioPieces is None:
-                audioPieces = audio_tokens.fine_prompt
-            if audioPieces is not None:
-                audioPieces = np.concatenate(audioPieces,  audio_tokens.fine_prompt)
+            previousPrompt = audio_tokens                        
 
             from bark.generation import codec_decode
 
             from IPython.display import Audio
 
-            encodec_output = codec_decode(audioPieces)
+            encodec_output = codec_decode(audio_tokens.fine_prompt)
 
             import torchaudio
             # Upsample to 44100 Hz for better reproduction on audio hardware
@@ -163,7 +157,7 @@ class Predictor(BasePredictor):
                 torch.from_numpy(encodec_output), orig_freq=24000, new_freq=44100)
             Audio(encodec_output, rate=44100)
 
-            audio_tokens_torch = torch.from_numpy(audioPieces).to(device)
+            audio_tokens_torch = torch.from_numpy(audio_tokens.fine_prompt).to(device)
             features = vocos.codes_to_features(audio_tokens_torch)
             vocos_output = vocos.decode(features, bandwidth_id=torch.tensor([2], device=device))  # 6 kbps
             # Upsample to 44100 Hz for better reproduction on audio hardware
